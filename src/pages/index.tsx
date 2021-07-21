@@ -9,6 +9,13 @@ import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
 
 export default function Home(): JSX.Element {
+  const fetchImages = ({ pageParam = null }) =>
+    api.get('/api/images', {
+      params: {
+        after: pageParam ? pageParam : null
+      }
+    }).then(response => response.data);
+
   const {
     data,
     isLoading,
@@ -18,8 +25,9 @@ export default function Home(): JSX.Element {
     hasNextPage,
   } = useInfiniteQuery(
     'images',
-    // TODO AXIOS REQUEST WITH PARAM
-    ,
+    fetchImages, {
+    getNextPageParam: lastPage => lastPage.after ?? null,
+  }
     // TODO GET AND RETURN NEXT PAGE PARAM
   );
 
@@ -27,9 +35,13 @@ export default function Home(): JSX.Element {
     // TODO FORMAT AND FLAT DATA ARRAY
   }, [data]);
 
-  // TODO RENDER LOADING SCREEN
+  if (isLoading === true) {
+    return <Loading />
+  }
 
-  // TODO RENDER ERROR SCREEN
+  if (isError === true) {
+    return <Error />
+  }
 
   return (
     <>
